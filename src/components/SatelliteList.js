@@ -1,4 +1,4 @@
-
+ 
 import React from "react";
 import Title from "antd/lib/typography/Title";
 import { List, Checkbox, Avatar } from "antd";
@@ -7,6 +7,7 @@ import satelliteImage from '../images/satellite.svg';
 const SatelliteList = ({
   satList,
   updateSatelliteList,
+  loading,
 }) => {
   const onSelectionChange = (checked, targetSatllite) => {
     const nextSatlliteList = satList.map((satllite) => {
@@ -35,6 +36,7 @@ const SatelliteList = ({
         className="sat-list"
         itemLayout="horizontal"
         dataSource={satList}
+        loading={loading}
         renderItem={ item => (
             <List.Item actions={[<Checkbox onChange={(e) => onSelectionChange(e.target.checked, item)} checked={item.selected} />]}>
                 <List.Item.Meta

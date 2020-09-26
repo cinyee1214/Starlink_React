@@ -75,7 +75,7 @@ const ObserverInfo = (props) => {
         </Form.Item>
 
         <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit">
+          <Button type="primary" htmlType="submit" disabled={props.loading}>
             Find nearby satellites
           </Button>
         </Form.Item>
