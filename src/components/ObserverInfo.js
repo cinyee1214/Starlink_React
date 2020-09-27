@@ -38,7 +38,7 @@ const ObserverInfo = (props) => {
             message: 'Please enter a valid longitude!',
           }]}
         >
-          <InputNumber min={-180} max={180} style={{ width: "40%" }} />
+          <InputNumber min={-180} max={180} style={{ width: "40%" }} disabled={props.disabled} />
         </Form.Item>
 
         <Form.Item
@@ -49,7 +49,7 @@ const ObserverInfo = (props) => {
             message: 'Please enter a valid latitude!',
           }]}
         >
-          <InputNumber min={-90} max={90} style={{ width: "40%" }} />
+          <InputNumber min={-90} max={90} style={{ width: "40%" }} disabled={props.disabled} />
         </Form.Item>
 
         <Form.Item
@@ -60,7 +60,7 @@ const ObserverInfo = (props) => {
             message: 'Please enter a valid altitude!',
           }]}
         >
-          <InputNumber min={-413} max={8850} style={{ width: "40%" }} />
+          <InputNumber min={-413} max={8850} style={{ width: "40%" }} disabled={props.disabled} />
         </Form.Item>
 
         <Form.Item
@@ -71,11 +71,11 @@ const ObserverInfo = (props) => {
             message: 'Please enter a valid radius!',
           }]}
         >
-          <InputNumber min={0} max={90} style={{ width: "40%" }} />
+          <InputNumber min={0} max={90} style={{ width: "40%" }} disabled={props.disabled} />
         </Form.Item>
 
         <Form.Item {...tailLayout}>
-          <Button type="primary" htmlType="submit" disabled={props.loading}>
+          <Button type="primary" htmlType="submit" disabled={props.loading || props.disabled}>
             Find nearby satellites
           </Button>
         </Form.Item>
