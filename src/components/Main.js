@@ -11,6 +11,7 @@ export const ABOVE_API_BASE_URL = `${NY20_BASE_URL}/above`;
 const Main = () => {
   const [loading, setLoading] = useState(false);
   const [satList, setSatList] = useState([]);
+  const [trakcing, setTracking] = useState(false);
 
   const findSatellitesOnClick = (nextObserverInfo) => {
     const { longitude, latitude, altitude, radius } = nextObserverInfo;
@@ -38,16 +39,20 @@ const Main = () => {
         <ObserverInfo 
           findSatellitesOnClick={findSatellitesOnClick}
           loading={loading}
+          disabled={trakcing}
         />
         <SatelliteList 
           satList={satList}
           updateSatelliteList={setSatList}
           loading={loading}
+          disabled={trakcing}
         />
       </Col>
       <Col span={16}>
         <WorldMap 
           selectedSatellites={satList.filter(sat => sat.selected)}
+          onTracking={setTracking}
+          disabled={trakcing}
         />
       </Col>
     </Row>

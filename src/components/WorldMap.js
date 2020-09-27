@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Geographies,
@@ -19,27 +18,46 @@ const geoUrl =
   "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
 
 const WorldMap = ({
-  selectedSatellites
+  selectedSatellites,
+  disabled,
+  onTracking
 }) => {
   const [duration, setDuration] = useState(1);
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [progressText, setProgressText] = useState(progressStatus.Idle);
+  const [timerId, setTimerId] = useState(undefined);
 
-  const trackOnClick = () => {
-    setProgressText(`Tracking for ${duration} minutes`);
-    setProgressPercentage(0);
+  const abortOnClick = () => {
+    if (timerId) {
+      clearInterval(timerId);
+      setProgressPercentage(0);
+      setProgressText(progressStatus.Idle);
+      onTracking(false);
+      setTimerId(undefined);
+    }
+  }
 
+  const startTracking = () => {
     let curMin = 0;
-    const timerId = setInterval(() => {
+    return setInterval(() => {
       setProgressPercentage((curMin / duration) * 100);
 
       if (curMin === duration) {
-        setProgressText(progressStatus.Complete)
+        setProgressText(progressStatus.Complete);
+        onTracking(false);
         clearInterval(timerId);
       }
 
       curMin++;
     }, 1000);
+  }
+
+  const trackOnClick = () => {
+    setProgressText(`Tracking for ${duration} minutes`);
+    setProgressPercentage(0);
+    onTracking(true);
+
+    setTimerId(startTracking());
   }
 
   return (
@@ -48,7 +66,7 @@ const WorldMap = ({
         <Button 
           type="primary"
           onClick={trackOnClick}
-          disabled={selectedSatellites.length === 0}
+          disabled={selectedSatellites.length === 0 || disabled}
         >
           Track selected satellites
         </Button>
@@ -58,13 +76,22 @@ const WorldMap = ({
           max={50}
           defaultValue={1}
           onChange={(value) => setDuration(value)}
+          disabled={disabled}
         />
         <span style={{ marginLeft: "10px", marginRight: "30px" }}>minutes</span>
         <Progress 
-          style={{ width: "500px" }}
+          style={{ width: "500px", marginRight: "150px" }}
           percent={progressPercentage} 
           format={() => progressText} 
         />
+        {timerId &&
+          <Button 
+            type="primary"
+            onClick={abortOnClick}
+          >
+            Abort
+          </Button>
+        }
       </div>
       <ComposableMap projectionConfig={{ scale: 137 }} style={{ height: "700px", marginLeft: "100px" }}>
         <Graticule stroke="#DDD" strokeWidth={0.5} />
