@@ -1,9 +1,10 @@
-
+ 
 import React, { useState } from "react";
 import { Col, Row } from "antd";
 import ObserverInfo from "./ObserverInfo";
 import { SAT_CATEGORY, NY20_API_KEY, NY20_BASE_URL } from "../constants";
 import SatelliteList from "./SatelliteList";
+import WorldMap from "./WorldMap";
 
 export const ABOVE_API_BASE_URL = `${NY20_BASE_URL}/above`;
 
@@ -45,7 +46,7 @@ const Main = () => {
         />
       </Col>
       <Col span={16}>
-        WorldMap
+        <WorldMap />
       </Col>
     </Row>
   )
