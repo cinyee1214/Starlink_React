@@ -1,4 +1,4 @@
- 
+
 import React, { useState } from "react";
 import { Col, Row } from "antd";
 import ObserverInfo from "./ObserverInfo";
@@ -46,7 +46,9 @@ const Main = () => {
         />
       </Col>
       <Col span={16}>
-        <WorldMap />
+        <WorldMap 
+          selectedSatellites={satList.filter(sat => sat.selected)}
+        />
       </Col>
     </Row>
   )
