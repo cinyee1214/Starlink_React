@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Geographies,
@@ -5,8 +6,12 @@ import {
   Graticule,
   Sphere,
   ComposableMap,
+  Marker
 } from "react-simple-maps";
 import { Button, InputNumber, Progress } from "antd";
+import { NY20_API_KEY, NY20_BASE_URL } from "../constants";
+
+export const POSITION_API_BASE_URL = `${NY20_BASE_URL}/positions`;
 
 const progressStatus = {
   Idle: 'Idle',
@@ -20,12 +25,15 @@ const geoUrl =
 const WorldMap = ({
   selectedSatellites,
   disabled,
-  onTracking
+  onTracking,
+  observerInfo
 }) => {
   const [duration, setDuration] = useState(1);
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [progressText, setProgressText] = useState(progressStatus.Idle);
   const [timerId, setTimerId] = useState(undefined);
+  const [markersInfo, setMarkersInfo] = useState([]);
+  const [currentTimestamp, setCurrentTimestamp] = useState('');
 
   const abortOnClick = () => {
     if (timerId) {
@@ -37,27 +45,61 @@ const WorldMap = ({
     }
   }
 
-  const startTracking = () => {
-    let curMin = 0;
-    return setInterval(() => {
-      setProgressPercentage((curMin / duration) * 100);
+  const fetchPositions = () => {
+    const { longitude, latitude, altitude } = observerInfo;
 
-      if (curMin === duration) {
+    return selectedSatellites.map((sat) => {
+      const id = sat.satid;
+      return fetch(`${POSITION_API_BASE_URL}/${id}/${latitude}/${longitude}/${altitude}/${duration * 60}&apiKey=${NY20_API_KEY}`)
+        .then(response => response.json());
+    })
+  }
+
+  const updateMarker = (data, index) => {
+    setMarkersInfo(data.map((sat) => {
+      return {
+        lon: sat.positions[index].satlongitude,
+        lat: sat.positions[index].satlatitude,
+        name: sat.info.satname,
+      };
+    }))
+  }
+
+  const startTracking = (data) => {
+    let index = 59;
+    let end = data[0].positions.length - 1;
+    
+    setCurrentTimestamp(new Date(data[0].positions[index].timestamp * 1000).toString());
+    updateMarker(data, index);
+    const timerId =  setInterval(() => {
+      index += 60;
+      setProgressPercentage((index / end) * 100);
+      updateMarker(data, index);
+      setCurrentTimestamp(new Date(data[0].positions[index].timestamp * 1000).toString());
+
+      if (index >= end) {
         setProgressText(progressStatus.Complete);
+        setTimerId(undefined);
         onTracking(false);
         clearInterval(timerId);
       }
 
-      curMin++;
     }, 1000);
+
+    return timerId;
   }
 
   const trackOnClick = () => {
-    setProgressText(`Tracking for ${duration} minutes`);
+    setProgressText(progressStatus.Tracking);
     setProgressPercentage(0);
     onTracking(true);
 
-    setTimerId(startTracking());
+    Promise.all(fetchPositions()).then((data) => {
+      const id = startTracking(data);
+      setTimerId(id);
+    }).catch(() => {
+      // TO DO: add some fallback UI handler here
+    });
   }
 
   return (
@@ -93,6 +135,9 @@ const WorldMap = ({
           </Button>
         }
       </div>
+      <div className="time-stamp-container" style={{textAlign: "center"}}>
+        <b>{currentTimestamp}</b>
+      </div>
       <ComposableMap projectionConfig={{ scale: 137 }} style={{ height: "700px", marginLeft: "100px" }}>
         <Graticule stroke="#DDD" strokeWidth={0.5} />
         <Sphere stroke="#DDD" strokeWidth={0.5} />
@@ -108,6 +153,14 @@ const WorldMap = ({
             ))
           }
         </Geographies>
+        {
+          markersInfo.map((mark) => 
+            <Marker coordinates={[mark.lon, mark.lat]}>
+              <circle r={4} fill="#F53" />
+              <text>{mark.name}</text>
+            </Marker>
+          )
+        }
       </ComposableMap>
     </>
   )

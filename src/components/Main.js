@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Col, Row } from "antd";
 import ObserverInfo from "./ObserverInfo";
@@ -12,8 +11,10 @@ const Main = () => {
   const [loading, setLoading] = useState(false);
   const [satList, setSatList] = useState([]);
   const [trakcing, setTracking] = useState(false);
+  const [observerInfo, setObserverInfo] = useState({});
 
   const findSatellitesOnClick = (nextObserverInfo) => {
+    setObserverInfo(nextObserverInfo);
     const { longitude, latitude, altitude, radius } = nextObserverInfo;
 
     setLoading(true);
@@ -53,6 +54,7 @@ const Main = () => {
           selectedSatellites={satList.filter(sat => sat.selected)}
           onTracking={setTracking}
           disabled={trakcing}
+          observerInfo={observerInfo}
         />
       </Col>
     </Row>
